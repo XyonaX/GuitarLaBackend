@@ -8,7 +8,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: '/api/auth/google/callback',
+            callbackURL: 'https://guitar-la-backend.vercel.app/api/auth/google/callback',
             scope: ['profile', 'email'],
         },
         async (accessToken, refreshToken, profile, done) => {
