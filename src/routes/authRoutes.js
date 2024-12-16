@@ -8,21 +8,24 @@ authRouter.post("/register", registerHandler);
 authRouter.post("/login", loginHandler);
 authRouter.get(
     '/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
+    passport.authenticate('google', { scope: ['profile', 'email'], session: false})
 );
-
 authRouter.get(
     '/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+    passport.authenticate('google', { failureRedirect: '/login', session: false }),
     (req, res) => {
-        // Si la autenticación fue exitosa, envía el token en formato JSON
-        if (req.user && req.user.token) {
-            // Devuelve el token al frontend en la respuesta JSON
-            res.json({ token: req.user.token });  
+        const { token } = req.user;
+
+        if (token) {
+            // Redirigir al frontend con el token en la URL
+            res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${encodeURIComponent(token)}`);
         } else {
-            res.status(400).json({ message: 'Error al autenticar al usuario.' });
+            res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
         }
     }
 );
+
+
+
 
 export default authRouter;
