@@ -6,39 +6,39 @@ import User from '../schema/Users.js';
 passport.use(
     new GoogleStrategy(
         {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: '/auth/google/callback',
-        scope: ['profile', 'email'],
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: '/api/auth/google/callback',
+            scope: ['profile', 'email'],
         },
         async (accessToken, refreshToken, profile, done) => {
-        try {
-            // Verificar si el usuario ya existe en la base de datos
-            let user = await User.findOne({ email: profile.emails[0].value });
+            try {
+                // Verificar si el usuario ya existe en la base de datos
+                let user = await User.findOne({ email: profile.emails[0].value });
 
-            if (!user) {
-            // Si no existe, crea un nuevo usuario con los datos de Google
-            user = new User({
-                username: profile.displayName,
-                email: profile.emails[0].value,
-                password: null, // No es necesario, ya que usaremos Google para autenticar
-                fullName: profile.displayName,
-                dateOfBirth: null,
-                phone: null,
-                address: null,
-            });
-            await user.save();
-            }
+                if (!user) {
+                    // Si no existe, crea un nuevo usuario con los datos de Google
+                    user = new User({
+                        username: profile.displayName,
+                        email: profile.emails[0].value,
+                        authProvider: "google", 
+                        fullName: profile.displayName,
+                        dateOfBirth: null,
+                        phone: null,
+                        address: null,
+                    });
+                    await user.save();
+                }
 
-            // Generar un token JWT para el usuario
-            const token = jwt.sign(
-                { id: user._id }, // Datos que incluirás en el payload
-                process.env.JWT_SECRET, // Clave secreta para firmar el token
-                { expiresIn: '1d' } // Configura el tiempo de expiración
-            );
+                const token = jwt.sign(
+                    { id: user.id, role: user.role }, // Payload
+                    process.env.JWT_SECRET || 'my_secret_key', // Clave secreta (debería estar en .env)
+                    { expiresIn: '1h' } // Expiración del token
+                );
 
-            // Pasar el token al cliente a través del callback
-            done(null, { token });// Finaliza la autenticación y pasa el usuario
+                // Pasamos la información del token y el usuario al siguiente middleware
+                done(null, { token, user });
+
             } catch (error) {
                 done(error, null);
             }
