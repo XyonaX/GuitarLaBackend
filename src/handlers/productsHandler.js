@@ -118,10 +118,52 @@ const deleteProductHandler = async (req, res) => {
   }
 };
 
+const updateStockHandler = async (req, res) => {
+  console.log('Received request to update stock', req.body);
+  try {
+      const { products } = req.body;
+
+      // Añadir log para ver el número de productos recibidos
+      console.log(`Updating stock for ${products.length} products`);
+
+      for (const product of products) {
+          console.log(`Processing product: ${product.id}`);
+          const existingProduct = await Product.findById(product.id);
+
+          if (!existingProduct) {
+              console.log(`Product not found: ${product.id}`);
+              return res.status(404).json({ error: `Producto con ID ${product.id} no encontrado.` });
+          }
+
+          if (existingProduct.stock < product.quantity) {
+              console.log(`Insufficient stock for: ${product.id}`);
+              return res.status(400).json({
+                  error: `Stock insuficiente para el producto ${existingProduct.productName}.`,
+              });
+          }
+
+          // Actualización del stock
+          await Product.findByIdAndUpdate(product.id, {
+              $inc: { stock: -product.quantity },
+          });
+      }
+
+      console.log('Stock update successful');
+      res.status(200).json({ message: "Stock actualizado correctamente." });
+  } catch (error) {
+      console.error('Error updating stock:', error);
+      res.status(500).json({ error: `Error al actualizar el stock: ${error.message}` });
+  }
+};
+
+
+
+
 export {
   getAllProductsHandler,
   getOneProductHandler,
   createProductHandler,
   updateProductHandler,
-  deleteProductHandler
+  deleteProductHandler,
+  updateStockHandler
 };
