@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProductHandler, deleteProductHandler, getAllProductsHandler, getOneProductHandler, updateProductHandler } from "../handlers/productsHandler.js";
+import { createProductHandler, deleteProductHandler, getAllProductsHandler, getOneProductHandler, updateProductHandler, updateStockHandler } from "../handlers/productsHandler.js";
 import { verifyToken } from "../middleware/verifyMiddleware.js";
 import { authorizeAdmin } from "../middleware/authorizationMiddleware.js";
 
@@ -15,5 +15,7 @@ productsRouter.post('/create', verifyToken, authorizeAdmin, createProductHandler
 productsRouter.put('/update/:id', verifyToken, authorizeAdmin, updateProductHandler);
 // Delete Product
 productsRouter.delete('/delete/:id', verifyToken, authorizeAdmin, deleteProductHandler);
+//Update Stock
+productsRouter.post('/updateStock',verifyToken ,updateStockHandler);
 
 export default productsRouter;
