@@ -31,8 +31,8 @@ paymentRouter.post("/create_preference", async (req, res) => {
         const body = {
             items,
             back_urls: {
-                success: "http://localhost:5173/payment-success",
-                failure: "http://localhost:5173/payment-failure",
+                success: "https://guitar-la-front.vercel.app/payment-success",
+                failure: "https://guitar-la-front.vercel.app/payment-failure",
                 pending: "http://localhost:5173/",
             },
             auto_return: "approved",
